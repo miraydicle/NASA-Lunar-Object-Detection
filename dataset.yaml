@@ -1,0 +1,12 @@
+# Dataset path
+path: C:/Users/Dell/Desktop/dataset
+
+# Sub-paths for train and validation images
+train: images/train
+val: images/val
+
+# Number of object classes
+nc: 1  # Can change if there are more classes
+
+# Class names
+names: ['moon_object']
