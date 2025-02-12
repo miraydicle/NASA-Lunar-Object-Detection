@@ -65,53 +65,10 @@ project-directory/
 
 ---
 
-## **Setup Instructions**
-
-### **1. Clone the Repository**
-```bash
-git clone <repository-url>
-cd project-directory
-```
-
-### **2. Create and Activate an Anaconda Environment**
-```bash
-conda create -n moon-detection python=3.9 -y
-conda activate moon-detection
-```
-
-### **3. Install Dependencies**
-Install the required packages:
-```bash
-pip install -r requirements.txt
-```
-
-Alternatively, if using Anaconda:
-```bash
-conda env update --file environment.yml
-```
-
-### **4. Generate Annotations**
-Run the script to generate YOLO-compatible annotations from input images:
-```bash
-python scripts/generate_annotations.py
-```
-
-### **5. Split Dataset**
-Organize the dataset into training and validation sets:
-```bash
-python scripts/split_dataset.py
-```
-
-### **6. Train the YOLO Model**
-Train the YOLO model with optimized settings:
-```bash
-python scripts/train_yolo.py
-```
-
----
-
 ## **Training Optimizations**
 - **Mixed Precision:** Enabled by default (`amp=True`).
 - **Batch Size:** Adjust based on your system's resources.
 - **Image Size:** Default is `416x416` for faster training. Modify in the script if necessary.
 
+---
+**Author:** Miray Dicle
