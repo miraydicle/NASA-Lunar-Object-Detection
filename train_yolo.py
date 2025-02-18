@@ -11,5 +11,4 @@ model.train(
     workers=4,                # Workers
     batch=4,                  # Batch size
     amp=False,                # Mixed precision
-    device='cpu'              # Force training on CPU if needed
 )
