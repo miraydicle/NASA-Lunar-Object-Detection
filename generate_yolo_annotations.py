@@ -3,9 +3,9 @@ import cv2
 from skimage.measure import label, regionprops
 
 # Define full paths to directories
-grayscale_dir = 'C:/Users/Dell/Desktop/training_images/grayscale'
-semantic_dir = 'C:/Users/Dell/Desktop/training_images/semantic'
-labels_dir = 'C:/Users/Dell/Desktop/output_labels'
+grayscale_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
+semantic_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/semantic'
+labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 os.makedirs(labels_dir, exist_ok=True)
 
 # Helper function to extract the prefix from file name (handles suffix like 'grayscale')
@@ -46,7 +46,9 @@ for prefix, grayscale_file in grayscale_files.items():
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
 
-            # Write annotation in YOLO format (class ID = 0 for now)
-            f.write(f"0 {x_center} {y_center} {bbox_width} {bbox_height}\n")
+            # Ensure valid bounding boxes
+            if bbox_width > 0 and bbox_height > 0:
+                # Write annotation in YOLO format (class ID = 0 for now)
+                f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 print("Annotation generation complete!")
