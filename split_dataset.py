@@ -5,7 +5,7 @@ import random
 # Full paths to directories
 images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
 labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
-dataset_dir = 'C:/Users/Dell/NASA_LAC/Desktop/dataset'
+dataset_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset'
 train_images_dir = os.path.join(dataset_dir, 'images/train')
 val_images_dir = os.path.join(dataset_dir, 'images/val')
 train_labels_dir = os.path.join(dataset_dir, 'labels/train')
