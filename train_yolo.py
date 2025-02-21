@@ -1,15 +1,9 @@
 from ultralytics import YOLO
 import torch
 
-# Ensure CUDA is available and use it
-if torch.cuda.is_available():
-    device = 'cuda'
-else:
-    device = 'cpu'
-
-# Load model
-model = YOLO('yolo11n.pt')
-model.to(device)
+# Load YOLO model
+model = YOLO('yolo11n.pt')  # Ensure correct path
+model.to('cuda')
 
 # Optimized Training Parameters with Data Augmentation
 model.train(
@@ -24,7 +18,7 @@ model.train(
     momentum=0.937,         # Momentum for stability
     weight_decay=0.0005,    # Regularization to prevent overfitting
     amp=True,               # Mixed precision training
-    device=device,          # Use CUDA if available
+    device="cuda",          # Use CUDA if available
     val=True,               # Enable validation tracking
     save_period=10,         # Save model every 10 epochs
     patience=20,            # Stop early if no improvement
