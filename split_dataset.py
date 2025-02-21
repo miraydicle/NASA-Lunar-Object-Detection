@@ -5,15 +5,16 @@ import random
 # Full paths to directories
 images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
 labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
-dataset_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset'
-train_images_dir = os.path.join(dataset_dir, 'images/train')
-val_images_dir = os.path.join(dataset_dir, 'images/val')
-train_labels_dir = os.path.join(dataset_dir, 'labels/train')
-val_labels_dir = os.path.join(dataset_dir, 'labels/val')
+train_images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/images/train'
+val_images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/images/val'
+train_labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/labels/train'
+val_labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/labels/val'
 
-# Create necessary directories
-for dir_path in [train_images_dir, val_images_dir, train_labels_dir, val_labels_dir]:
-    os.makedirs(dir_path, exist_ok=True)
+# Create directories
+os.makedirs(train_images_dir, exist_ok=True)
+os.makedirs(val_images_dir, exist_ok=True)
+os.makedirs(train_labels_dir, exist_ok=True)
+os.makedirs(val_labels_dir, exist_ok=True)
 
 # Get all image prefixes
 image_files = [f for f in os.listdir(images_dir) if f.endswith('grayscale.png')]
