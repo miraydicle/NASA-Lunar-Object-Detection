@@ -11,7 +11,7 @@ model.train(
     epochs=150,             # Increased for better convergence
     imgsz=640,              # Higher resolution for better object detection
     workers=8,              # Balanced number of workers for stability
-    batch_size=64,          # Adjusted for GPU memory efficiency
+    batch=64,          # Adjusted for GPU memory efficiency
     optimizer='AdamW',      # More adaptive optimizer
     lr0=0.001,              # Fine-tuned learning rate
     lrf=0.01,               # Final learning rate factor
