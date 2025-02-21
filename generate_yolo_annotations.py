@@ -46,9 +46,8 @@ for prefix, grayscale_file in grayscale_files.items():
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
 
-            # Ensure valid bounding boxes
-            if bbox_width > 0.01 and bbox_height > 0.01 and bbox_width < 1.0 and bbox_height < 1.0:
-                # Write annotation in YOLO format (class ID = 0 for now)
+            # Ensure valid bounding boxes (filter tiny boxes & edge cases)
+            if 0.02 <= bbox_width <= 1.0 and 0.02 <= bbox_height <= 1.0 and 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98:
                 f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-print("Annotation generation complete! Filters applied: Removed near-zero size and full-image bounding boxes.")
+print("Annotation generation complete! Tiny boxes and edge objects filtered.")
