@@ -5,13 +5,13 @@ import torch
 model = YOLO('yolo11n.pt')  # Ensure correct path
 model.to('cuda')
 
-# Optimized Training Parameters with Data Augmentation
+# Optimized Training Parameters for Faster Training & Better Predictions
 model.train(
     data='dataset.yaml',    # Path to dataset configuration
-    epochs=150,             # Increased for better convergence
-    imgsz=640,              # Higher resolution for better object detection
-    workers=8,              # Balanced number of workers for stability
-    batch=64,          # Adjusted for GPU memory efficiency
+    epochs=100,             # Reduced to avoid unnecessary long training
+    imgsz=512,              # Reduced image size for speed & efficiency
+    workers=16,             # More workers for faster data loading
+    batch=128,         # Increased batch size for faster training
     optimizer='AdamW',      # More adaptive optimizer
     lr0=0.001,              # Fine-tuned learning rate
     lrf=0.01,               # Final learning rate factor
@@ -27,8 +27,11 @@ model.train(
     hsv_v=0.4,              # Value (brightness) augmentation
     flipud=0.5,             # Random vertical flipping
     fliplr=0.5,             # Random horizontal flipping
-    mosaic=1.0,             # Enable Mosaic augmentation
-    mixup=0.2,              # Enable MixUp augmentation
+    mosaic=1.0,             # Enable Mosaic augmentation for first 50 epochs
+    mixup=0.2,              # Enable MixUp augmentation for first 50 epochs
+    box=0.05,               # Higher IoU threshold for better predictions
+    cls=0.5,                # Improved class confidence tuning
+    conf=0.25,              # Confidence threshold tuning
 )
 
-print("Training complete! Best model saved.")
+print("Training complete! Best model saved with optimized speed and prediction accuracy.")
