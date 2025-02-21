@@ -1,5 +1,5 @@
 # Dataset path
-path: C:/Users/Dell/Desktop/dataset
+path: C:/Users/Dell/Desktop/NASA_LAC/dataset
 
 # Sub-paths for train and validation images
 train: images/train
