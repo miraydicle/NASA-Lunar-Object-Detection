@@ -16,7 +16,7 @@ class_mapping = {
     2: "rock",
     3: "dust_deposit",
     4: "lunar_module",
-    5: "unknown_object"  # Add more classes as needed
+    5: "unknown_object"  # All unknown objects will be grouped under class 5
 }
 
 # Helper function to extract the prefix from file name
@@ -61,10 +61,9 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract class ID from the mask
             class_id = int(np.max(semantic_mask[minr:maxr, minc:maxc]))  # Extract class ID from the semantic mask
 
-            # If class ID is unknown, assign to "unknown_object"
+            # If class ID is unknown, assign to "unknown_object" instead of creating new IDs
             if class_id not in class_mapping:
-                class_id = max(class_mapping.keys()) + 1
-                class_mapping[class_id] = f"object_{class_id}"
+                class_id = 5  # Force all unknown objects into class 5
 
             unique_classes.add(class_id)
 
