@@ -58,8 +58,12 @@ for prefix, grayscale_file in grayscale_files.items():
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
 
-            # Extract class ID from the mask
-            class_id = int(np.max(semantic_mask[minr:maxr, minc:maxc]))  # Extract class ID from the semantic mask
+            # Extract the unique values from the mask region
+            mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
+            print(f"Detected mask values for {prefix}: {mask_values}")  # Debugging print
+
+            # Choose the most frequent value instead of max, to avoid misclassification
+            class_id = int(np.bincount(mask_values).argmax())
 
             # If class ID is unknown, assign to "unknown_object" instead of creating new IDs
             if class_id not in class_mapping:
