@@ -66,7 +66,8 @@ for prefix, grayscale_file in grayscale_files.items():
                 class_id = 5  # "unknown_object"
             else:
                 # Pick the most frequent class value within the region
-                most_frequent_value = int(np.bincount(mask_values).argmax())
+                class_counts = np.bincount(mask_values)
+                most_frequent_value = mask_values[np.argmax(class_counts)]
 
                 # Ensure the class ID is correctly mapped
                 class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
@@ -78,8 +79,11 @@ for prefix, grayscale_file in grayscale_files.items():
                 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
+# Ensure unique class names for dataset.yaml
+class_names = ["crater", "rock", "dust_deposit", "lunar_module", "unknown_object"]
+
 # Update dataset.yaml with correct class count and names
-nc = len(mask_class_mapping) + 1  # +1 for "unknown_object"
+nc = len(class_names)
 dataset_yaml_content = f"""# Dataset path
 path: C:/Users/Dell/Desktop/NASA_LAC/dataset
 
@@ -91,10 +95,10 @@ val: images/val
 nc: {nc}
 
 # Class names
-names: {list(mask_class_mapping.values()) + ["unknown_object"]}
+names: {class_names}
 """
 
 with open(dataset_yaml_path, "w") as f:
     f.write(dataset_yaml_content)
 
-print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {list(mask_class_mapping.values()) + ['unknown_object']}") 
+print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {class_names}") 
