@@ -10,13 +10,12 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Define class mapping (Update based on your dataset)
-class_mapping = {
-    1: "crater",
-    2: "rock",
-    3: "dust_deposit",
-    4: "lunar_module",
-    5: "unknown_object"  # All unknown objects will be grouped under class 5
+# Corrected class mapping based on detected mask values
+mask_class_mapping = {
+    33: 1,   # crater
+    59: 2,   # rock
+    138: 3,  # dust_deposit
+    171: 4,  # lunar_module
 }
 
 # Helper function to extract the prefix from file name
@@ -60,14 +59,19 @@ for prefix, grayscale_file in grayscale_files.items():
 
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
+            mask_values = mask_values[mask_values > 0]  # Remove background (0)
+            
             print(f"Detected mask values for {prefix}: {mask_values}")  # Debugging print
 
-            # Choose the most frequent value instead of max, to avoid misclassification
-            class_id = int(np.bincount(mask_values).argmax())
+            # If no valid object is found, set as "unknown"
+            if len(mask_values) == 0:
+                class_id = 5  # "unknown_object"
+            else:
+                # Pick the most frequent class value within the region
+                most_frequent_value = int(np.bincount(mask_values).argmax())
 
-            # If class ID is unknown, assign to "unknown_object" instead of creating new IDs
-            if class_id not in class_mapping:
-                class_id = 5  # Force all unknown objects into class 5
+                # Ensure the class ID is correctly mapped
+                class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
 
             unique_classes.add(class_id)
 
@@ -77,7 +81,7 @@ for prefix, grayscale_file in grayscale_files.items():
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Update dataset.yaml with correct class count and names
-nc = len(class_mapping)
+nc = len(mask_class_mapping) + 1  # +1 for "unknown_object"
 dataset_yaml_content = f"""# Dataset path
 path: C:/Users/Dell/Desktop/NASA_LAC/dataset
 
@@ -89,10 +93,10 @@ val: images/val
 nc: {nc}
 
 # Class names
-names: {list(class_mapping.values())}
+names: {list(mask_class_mapping.values()) + ["unknown_object"]}
 """
 
 with open(dataset_yaml_path, "w") as f:
     f.write(dataset_yaml_content)
 
-print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {list(class_mapping.values())}")
+print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {list(mask_class_mapping.values()) + ['unknown_object']}") 
