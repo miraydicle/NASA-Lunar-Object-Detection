@@ -22,7 +22,7 @@ model.train(
     val=True,               # Enable validation tracking
     save_period=10,         # Save model every 10 epochs
     patience=20,            # Stop early if no improvement
-    autoaugment=True,       # Advanced augmentation enabled (removes redundant manual augmentations)
+    augment=True,           # Advanced YOLO augmentation enabled
     conf=0.6,               # Confidence threshold tuning
     iou=0.45                # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
 )
