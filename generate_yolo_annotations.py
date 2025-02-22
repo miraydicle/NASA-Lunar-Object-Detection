@@ -64,22 +64,23 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
-            # Remove background pixels dynamically
+            # Remove dynamically detected background pixels
             mask_values = [v for v in mask_values if v in mask_class_mapping and v != most_common_background_value]
 
             # If no valid object is found, set as "unknown"
             if len(mask_values) == 0:
                 class_id = 5  # "unknown_object"
             else:
-                # Find the most frequent valid object pixel value
-                most_frequent_value = max(set(mask_values), key=mask_values.count)
+                # Find the most dominant valid object pixel value
+                class_counts = {v: np.sum(semantic_mask[minr:maxr, minc:maxc] == v) for v in mask_values}
+                most_frequent_value = max(class_counts, key=class_counts.get)  # Pick most dominant class
                 class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
 
             unique_classes.add(class_id)
 
-            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
-            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
-                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
+            # Ensure valid bounding boxes (allowing small objects)
+            if (0.01 <= bbox_width <= 0.8 and 0.01 <= bbox_height <= 0.8 and
+                0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):  # Allowing smaller objects
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Ensure unique class names for dataset.yaml
