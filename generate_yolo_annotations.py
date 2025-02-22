@@ -65,9 +65,9 @@ for prefix, grayscale_file in grayscale_files.items():
             if len(mask_values) == 0:
                 class_id = 5  # "unknown_object"
             else:
-                # Pick the most frequent class value within the region
+                # Find the most frequent class value safely
                 class_counts = np.bincount(mask_values)
-                most_frequent_value = mask_values[np.argmax(class_counts)]
+                most_frequent_value = mask_values[np.argmax(class_counts[:len(mask_values)])]
 
                 # Ensure the class ID is correctly mapped
                 class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
