@@ -43,6 +43,10 @@ for prefix, grayscale_file in grayscale_files.items():
 
     height, width = grayscale_img.shape
 
+    # Dynamically detect the most common background pixel values
+    unique_pixels, pixel_counts = np.unique(semantic_mask, return_counts=True)
+    most_common_background_values = set(unique_pixels[pixel_counts.argmax()])  # Most frequent value(s)
+
     # Label connected regions in the mask
     labeled_mask = label(semantic_mask)
 
@@ -59,17 +63,16 @@ for prefix, grayscale_file in grayscale_files.items():
 
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
-            mask_values = mask_values[mask_values > 0]  # Remove background (0)
+
+            # Remove background pixels dynamically
+            mask_values = [v for v in mask_values if v in mask_class_mapping and v not in most_common_background_values]
 
             # If no valid object is found, set as "unknown"
             if len(mask_values) == 0:
                 class_id = 5  # "unknown_object"
             else:
-                # Find the most frequent class value safely
-                class_counts = np.bincount(mask_values)
-                most_frequent_value = mask_values[np.argmax(class_counts[:len(mask_values)])]
-
-                # Ensure the class ID is correctly mapped
+                # Find the most frequent valid object pixel value
+                most_frequent_value = max(set(mask_values), key=mask_values.count)
                 class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
 
             unique_classes.add(class_id)
@@ -101,4 +104,4 @@ names: {class_names}
 with open(dataset_yaml_path, "w") as f:
     f.write(dataset_yaml_content)
 
-print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {class_names}") 
+print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {class_names}")
