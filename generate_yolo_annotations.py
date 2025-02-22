@@ -10,7 +10,16 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Helper function to extract the prefix from file name (handles suffix like 'grayscale')
+# Predefined class mapping (Modify as needed)
+class_mapping = {
+    1: "crater",
+    2: "rock",
+    3: "dust_deposit",
+    4: "lunar_module",
+    5: "unknown_object"
+}
+
+# Helper function to extract the prefix from file name
 def extract_prefix(filename):
     return ''.join([c for c in filename if c.isdigit()])
 
@@ -22,7 +31,7 @@ semantic_files = {extract_prefix(f): f for f in os.listdir(semantic_dir) if f.en
 unique_classes = set()
 for prefix, grayscale_file in grayscale_files.items():
     if prefix not in semantic_files:
-        print(f"No matching semantic mask for {grayscale_file}")
+        print(f"[WARNING] No matching semantic mask for {grayscale_file}")
         continue
 
     # Read images
@@ -30,7 +39,7 @@ for prefix, grayscale_file in grayscale_files.items():
     semantic_mask = cv2.imread(os.path.join(semantic_dir, semantic_files[prefix]), cv2.IMREAD_GRAYSCALE)
 
     if grayscale_img is None or semantic_mask is None:
-        print(f"Error reading images for prefix {prefix}. Skipping.")
+        print(f"[ERROR] Failed to read {prefix}. Skipping.")
         continue
 
     height, width = grayscale_img.shape
@@ -48,16 +57,23 @@ for prefix, grayscale_file in grayscale_files.items():
             y_center = (minr + maxr) / 2 / height
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
-            class_id = 0  # Assuming a single class for now
+
+            # Assign class ID dynamically (assumes each object has a label in the semantic mask)
+            class_id = int(np.max(semantic_mask[minr:maxr, minc:maxc]))  # Extract class from mask
+
+            # Ensure class ID is in the known mapping
+            if class_id not in class_mapping:
+                class_id = max(class_mapping.keys()) + 1  # Assign a new ID for unknown objects
+                class_mapping[class_id] = f"object_{class_id}"  # Assign a generic name
+
             unique_classes.add(class_id)
 
-            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
+            # Ensure valid bounding boxes
             if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
-                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98 and
-                bbox_width < 1.0 and bbox_height < 1.0):
+                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-# Update dataset.yaml with correct class count
+# Update dataset.yaml with correct class count and names
 nc = len(unique_classes)
 dataset_yaml_content = f"""# Dataset path
 path: C:/Users/Dell/Desktop/NASA_LAC/dataset
@@ -70,10 +86,10 @@ val: images/val
 nc: {nc}
 
 # Class names
-names: ['moon_object']
+names: {list(class_mapping.values())}
 """
 
 with open(dataset_yaml_path, "w") as f:
     f.write(dataset_yaml_content)
 
-print(f"Annotation generation complete! dataset.yaml updated with nc={nc}.")
+print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {list(class_mapping.values())}")
