@@ -10,13 +10,16 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Corrected class mapping based on detected mask values
+# Define class mapping (ensuring correct object classification)
 mask_class_mapping = {
     33: 1,   # crater
     59: 2,   # rock
     138: 3,  # dust_deposit
     171: 4,  # lunar_module
 }
+
+# Manually define pixel values to be ignored (Pink & Black areas)
+EXCLUDED_PIXELS = {0, 255}  # 0 (Black) and 255 (Potential Pink Area)
 
 # Helper function to extract the prefix from file name
 def extract_prefix(filename):
@@ -43,10 +46,6 @@ for prefix, grayscale_file in grayscale_files.items():
 
     height, width = grayscale_img.shape
 
-    # Dynamically detect the most common background pixel value
-    unique_pixels, pixel_counts = np.unique(semantic_mask, return_counts=True)
-    most_common_background_value = unique_pixels[pixel_counts.argmax()]  # Store as single value
-
     # Label connected regions in the mask
     labeled_mask = label(semantic_mask)
 
@@ -64,17 +63,17 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
-            # Remove dynamically detected background pixels
-            mask_values = [v for v in mask_values if v in mask_class_mapping and v != most_common_background_value]
+            # Remove dynamically detected background pixels and pink/black areas
+            mask_values = [v for v in mask_values if v in mask_class_mapping and v not in EXCLUDED_PIXELS]
 
             # If no valid object is found, set as "unknown"
             if len(mask_values) == 0:
-                class_id = 5  # "unknown_object"
-            else:
-                # Find the most dominant valid object pixel value
-                class_counts = {v: np.sum(semantic_mask[minr:maxr, minc:maxc] == v) for v in mask_values}
-                most_frequent_value = max(class_counts, key=class_counts.get)  # Pick most dominant class
-                class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
+                continue  # Completely ignore this region
+
+            # Find the most dominant valid object pixel value
+            class_counts = {v: np.sum(semantic_mask[minr:maxr, minc:maxc] == v) for v in mask_values}
+            most_frequent_value = max(class_counts, key=class_counts.get)  # Pick most dominant class
+            class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
 
             unique_classes.add(class_id)
 
@@ -84,7 +83,7 @@ for prefix, grayscale_file in grayscale_files.items():
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Ensure unique class names for dataset.yaml
-class_names = ["crater", "rock", "dust_deposit", "lunar_module", "unknown_object"]
+class_names = ["crater", "rock", "dust_deposit", "lunar_module"]
 
 # Update dataset.yaml with correct class count and names
 nc = len(class_names)
