@@ -24,7 +24,7 @@ model.train(
     patience=20,            # Stop early if no improvement
     augment=True,           # Advanced YOLO augmentation enabled
     conf=0.6,               # Confidence threshold tuning
-    iou=0.45                # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
+    iou=0.5                 # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
 )
 
 print("Training complete! Best model saved with optimized speed and prediction accuracy.")
