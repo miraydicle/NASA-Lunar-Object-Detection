@@ -1,11 +1,13 @@
 import os
 import cv2
+import numpy as np
 from skimage.measure import label, regionprops
 
 # Define full paths to directories
 grayscale_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
 semantic_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/semantic'
 labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
+dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
 # Helper function to extract the prefix from file name (handles suffix like 'grayscale')
@@ -17,6 +19,7 @@ grayscale_files = {extract_prefix(f): f for f in os.listdir(grayscale_dir) if f.
 semantic_files = {extract_prefix(f): f for f in os.listdir(semantic_dir) if f.endswith('semantic.png')}
 
 # Generate annotations
+unique_classes = set()
 for prefix, grayscale_file in grayscale_files.items():
     if prefix not in semantic_files:
         print(f"No matching semantic mask for {grayscale_file}")
@@ -45,11 +48,32 @@ for prefix, grayscale_file in grayscale_files.items():
             y_center = (minr + maxr) / 2 / height
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
+            class_id = 0  # Assuming a single class for now
+            unique_classes.add(class_id)
 
             # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
             if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
                 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98 and
                 bbox_width < 1.0 and bbox_height < 1.0):
-                f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
+                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-print("Annotation generation complete! Full-image and oversized boxes filtered.")
+# Update dataset.yaml with correct class count
+nc = len(unique_classes)
+dataset_yaml_content = f"""# Dataset path
+path: C:/Users/Dell/Desktop/NASA_LAC/dataset
+
+# Sub-paths for train and validation images
+train: images/train
+val: images/val
+
+# Number of object classes
+nc: {nc}
+
+# Class names
+names: ['moon_object']
+"""
+
+with open(dataset_yaml_path, "w") as f:
+    f.write(dataset_yaml_content)
+
+print(f"Annotation generation complete! dataset.yaml updated with nc={nc}.")
