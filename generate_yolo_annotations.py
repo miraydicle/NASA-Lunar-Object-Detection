@@ -60,8 +60,6 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
             mask_values = mask_values[mask_values > 0]  # Remove background (0)
-            
-            print(f"Detected mask values for {prefix}: {mask_values}")  # Debugging print
 
             # If no valid object is found, set as "unknown"
             if len(mask_values) == 0:
