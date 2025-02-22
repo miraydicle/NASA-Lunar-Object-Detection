@@ -45,11 +45,13 @@ for prefix, grayscale_file in grayscale_files.items():
             y_center = (minr + maxr) / 2 / height
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
+            aspect_ratio = max(bbox_width / bbox_height, bbox_height / bbox_width)
 
-            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
-            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
+            # Ensure valid bounding boxes (filter tiny boxes, edge cases, large boxes, and extreme aspect ratios)
+            if (0.03 <= bbox_width <= 0.8 and 0.03 <= bbox_height <= 0.8 and
                 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98 and
-                bbox_width < 1.0 and bbox_height < 1.0):
+                bbox_width < 1.0 and bbox_height < 1.0 and
+                aspect_ratio <= 4.0):
                 f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-print("Annotation generation complete! Full-image and oversized boxes filtered.")
+print("Annotation generation complete! Tiny, extreme aspect ratio, and oversized boxes filtered.")
