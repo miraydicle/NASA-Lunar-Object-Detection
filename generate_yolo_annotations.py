@@ -10,16 +10,12 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Define class mapping (ensuring correct object classification)
+# Class Mapping
 mask_class_mapping = {
-    33: 1,   # crater
-    59: 2,   # rock
-    138: 3,  # dust_deposit
-    171: 4,  # lunar_module
+    59: 1,   # Rock
+    138: 2,  # Crater
+    171: 3,  # Lunar Module
 }
-
-# Manually define pixel values to be ignored (Pink & Black areas)
-EXCLUDED_PIXELS = {0, 255}  # 0 (Black) and 255 (Potential Pink Area)
 
 # Helper function to extract the prefix from file name
 def extract_prefix(filename):
@@ -63,27 +59,28 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
-            # Remove dynamically detected background pixels and pink/black areas
-            mask_values = [v for v in mask_values if v in mask_class_mapping and v not in EXCLUDED_PIXELS]
+            # Remove Background (0) and Pink (33)
+            mask_values = mask_values[(mask_values > 0) & (mask_values != 33)]
 
-            # If no valid object is found, set as "unknown"
+            # If no valid object is found, skip this region
             if len(mask_values) == 0:
-                continue  # Completely ignore this region
+                continue
 
-            # Find the most dominant valid object pixel value
-            class_counts = {v: np.sum(semantic_mask[minr:maxr, minc:maxc] == v) for v in mask_values}
-            most_frequent_value = max(class_counts, key=class_counts.get)  # Pick most dominant class
-            class_id = mask_class_mapping.get(most_frequent_value, 5)  # Default to "unknown_object" if not mapped
+            # Pick the most frequent object class in the bounding box
+            most_frequent_value = int(np.bincount(mask_values).argmax())
+
+            # Ensure the class ID is correctly mapped
+            class_id = mask_class_mapping.get(most_frequent_value, 4)  # Default to "unknown_object"
 
             unique_classes.add(class_id)
 
-            # Ensure valid bounding boxes (allowing small objects)
-            if (0.01 <= bbox_width <= 0.8 and 0.01 <= bbox_height <= 0.8 and
-                0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):  # Allowing smaller objects
+            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
+            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
+                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
                 f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-# Ensure unique class names for dataset.yaml
-class_names = ["crater", "rock", "dust_deposit", "lunar_module"]
+# Class Names
+class_names = ["rock", "crater", "lunar_module", "unknown_object"]
 
 # Update dataset.yaml with correct class count and names
 nc = len(class_names)
