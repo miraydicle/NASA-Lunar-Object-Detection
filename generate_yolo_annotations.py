@@ -71,7 +71,7 @@ for prefix, grayscale_file in grayscale_files.items():
             # Ensure valid bounding boxes
             if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
                 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
-                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
+                f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Update dataset.yaml with correct class count and names
 nc = len(unique_classes)
