@@ -43,9 +43,9 @@ for prefix, grayscale_file in grayscale_files.items():
 
     height, width = grayscale_img.shape
 
-    # Dynamically detect the most common background pixel values
+    # Dynamically detect the most common background pixel value
     unique_pixels, pixel_counts = np.unique(semantic_mask, return_counts=True)
-    most_common_background_values = set(unique_pixels[pixel_counts.argmax()])  # Most frequent value(s)
+    most_common_background_value = unique_pixels[pixel_counts.argmax()]  # Store as single value
 
     # Label connected regions in the mask
     labeled_mask = label(semantic_mask)
@@ -65,7 +65,7 @@ for prefix, grayscale_file in grayscale_files.items():
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
             # Remove background pixels dynamically
-            mask_values = [v for v in mask_values if v in mask_class_mapping and v not in most_common_background_values]
+            mask_values = [v for v in mask_values if v in mask_class_mapping and v != most_common_background_value]
 
             # If no valid object is found, set as "unknown"
             if len(mask_values) == 0:
