@@ -17,6 +17,9 @@ mask_class_mapping = {
     171: 3,  # Lunar Module
 }
 
+# Pixels to ignore
+ignore_pixels = {0, 33, 42}  # Background, pink area, and non-object
+
 # Helper function to extract the prefix from file name
 def extract_prefix(filename):
     return ''.join([c for c in filename if c.isdigit()])
@@ -59,15 +62,16 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
-            # Remove Background (0) and Pink (33)
-            mask_values = mask_values[(mask_values > 0) & (mask_values != 33)]
+            # Remove ignored pixels (background, pink, non-object)
+            mask_values = [val for val in mask_values if val not in ignore_pixels]
 
             # If no valid object is found, skip this region
-            if len(mask_values) == 0:
+            if not mask_values:
                 continue
 
             # Pick the most frequent object class in the bounding box
-            most_frequent_value = int(np.bincount(mask_values).argmax())
+            class_counts = np.bincount(mask_values)
+            most_frequent_value = mask_values[np.argmax(class_counts[:len(mask_values)])]
 
             # Ensure the class ID is correctly mapped
             class_id = mask_class_mapping.get(most_frequent_value, 4)  # Default to "unknown_object"
