@@ -11,7 +11,7 @@ model.train(
     epochs=120,             # Reduced to avoid unnecessary long training
     imgsz=640,              # Reduced image size for speed & efficiency
     workers=16,             # More workers for faster data loading
-    batch=128,              # Increased batch size for faster training
+    batch=64,               # Increased batch size for faster training
     optimizer='AdamW',      # More adaptive optimizer
     lr0=0.0008,             # Lower learning rate for fine-tuning precision
     lrf=0.01,               # Final learning rate factor
