@@ -10,13 +10,13 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Predefined class mapping (Modify as needed)
+# Define class mapping (Update based on your dataset)
 class_mapping = {
     1: "crater",
     2: "rock",
     3: "dust_deposit",
     4: "lunar_module",
-    5: "unknown_object"
+    5: "unknown_object"  # Add more classes as needed
 }
 
 # Helper function to extract the prefix from file name
@@ -58,23 +58,23 @@ for prefix, grayscale_file in grayscale_files.items():
             bbox_width = (maxc - minc) / width
             bbox_height = (maxr - minr) / height
 
-            # Assign class ID dynamically (assumes each object has a label in the semantic mask)
-            class_id = int(np.max(semantic_mask[minr:maxr, minc:maxc]))  # Extract class from mask
+            # Extract class ID from the mask
+            class_id = int(np.max(semantic_mask[minr:maxr, minc:maxc]))  # Extract class ID from the semantic mask
 
-            # Ensure class ID is in the known mapping
+            # If class ID is unknown, assign to "unknown_object"
             if class_id not in class_mapping:
-                class_id = max(class_mapping.keys()) + 1  # Assign a new ID for unknown objects
-                class_mapping[class_id] = f"object_{class_id}"  # Assign a generic name
+                class_id = max(class_mapping.keys()) + 1
+                class_mapping[class_id] = f"object_{class_id}"
 
             unique_classes.add(class_id)
 
-            # Ensure valid bounding boxes
+            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
             if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
                 0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
-                f.write(f"0 {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
+                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Update dataset.yaml with correct class count and names
-nc = len(unique_classes)
+nc = len(class_mapping)
 dataset_yaml_content = f"""# Dataset path
 path: C:/Users/Dell/Desktop/NASA_LAC/dataset
 
