@@ -1,9 +1,9 @@
-from ultralytics import YOLO
-import cv2
 import os
 import random
+import cv2
+from ultralytics import YOLO
 
-# Load the trained model
+# Load the trained YOLO model
 model = YOLO('runs/detect/train2/weights/best.pt')
 
 # Define the validation images folder
@@ -16,20 +16,25 @@ image_files = [f for f in os.listdir(val_images_dir) if f.endswith(('.png', '.jp
 if not image_files:
     raise FileNotFoundError("ERROR: No images found in the validation dataset!")
 
-# Select a random image
-random_image = random.choice(image_files)
-image_path = os.path.join(val_images_dir, random_image)
+# Select 10 random images (or all if less than 10 exist)
+num_images = min(10, len(image_files))
+selected_images = random.sample(image_files, num_images)
 
-print(f"Selected random image: {image_path}")
+print(f"Running predictions on {num_images} random images...")
 
-# Read and test the selected image
-image = cv2.imread(image_path)
+# Run YOLO prediction on each selected image
+for image_file in selected_images:
+    image_path = os.path.join(val_images_dir, image_file)
+    print(f"Processing: {image_path}")
 
-# Run YOLO prediction
-results = model.predict(image, save=True, project="runs/detect", name="predict")
+    # Read the image using OpenCV
+    image = cv2.imread(image_path)
 
-# Display results
-for i, result in enumerate(results):
-    result.show()  # Show the detection result
+    # Run YOLO model on the image
+    results = model.predict(image, save=True, project="runs/detect", name="predict")
 
-print("Prediction complete!")
+    # Display results
+    for result in results:
+        result.show()  # Show the detection result
+
+print("Predictions complete! Results saved in 'runs/detect/predict'.")
