@@ -5,7 +5,7 @@ import numpy as np
 from ultralytics import YOLO
 
 # Load trained YOLO model
-model_path = "runs/detect/train2/weights/best.pt"
+model_path = "runs/detect/train/weights/best.pt"
 model = YOLO(model_path)
 
 # Define the folder containing validation images
