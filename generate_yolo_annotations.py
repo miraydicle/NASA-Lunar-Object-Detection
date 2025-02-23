@@ -32,6 +32,10 @@ def extract_prefix(filename):
 def get_class_id(pixel_value):
     global next_dynamic_class_id
 
+    # Ensure the correct class is assigned to the lunar module
+    if pixel_value == 171:
+        return "lunar_module"
+
     # Check predefined classes
     for pixel_range, class_name in predefined_classes.items():
         if pixel_value in pixel_range:
@@ -39,7 +43,6 @@ def get_class_id(pixel_value):
 
     # If pixel_value is not predefined, categorize it dynamically
     if pixel_value not in dynamic_class_mapping:
-        # Assign a new class dynamically
         dynamic_class_mapping[pixel_value] = f"class_{next_dynamic_class_id}"
         next_dynamic_class_id += 1  # Increment for next unknown class
 
@@ -98,7 +101,7 @@ for prefix, grayscale_file in grayscale_files.items():
             unique_classes.add(class_name)
 
             # Ensure small objects are detected by lowering threshold
-            if (0.005 <= bbox_width <= 0.8 and 0.005 <= bbox_height <= 0.8 and
+            if (0.002 <= bbox_width <= 0.8 and 0.002 <= bbox_height <= 0.8 and
                 0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):
                 f.write(f"{class_name} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
