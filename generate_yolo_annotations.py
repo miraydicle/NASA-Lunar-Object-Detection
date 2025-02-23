@@ -12,9 +12,9 @@ os.makedirs(labels_dir, exist_ok=True)
 
 # Predefined Object Classes (Fixed Mappings)
 predefined_classes = {
-    range(57, 62): "rock",   # Rock
-    range(136, 141): "crater",  # Crater
-    range(169, 173): "lander",  # Lander
+    range(57, 62): 1,   # Rock
+    range(136, 141): 2,  # Crater
+    range(169, 173): 3,  # Lander
 }
 
 # Ignored Pixels (Background, unwanted colors)
