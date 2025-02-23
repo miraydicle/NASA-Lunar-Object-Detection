@@ -32,9 +32,9 @@ def extract_prefix(filename):
 def get_class_id(pixel_value):
     global next_dynamic_class_id
 
-    # Ensure the correct class is assigned to the lunar module
+    # Ensure the correct class is assigned to the lander
     if pixel_value == 171:
-        return "lunar_module"
+        return "lander"
 
     # Check predefined classes
     for pixel_range, class_name in predefined_classes.items():
