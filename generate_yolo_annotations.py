@@ -10,26 +10,47 @@ labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
 
-# Class Mapping
-mask_class_mapping = {
-    59: 1,   # Rock
-    138: 2,  # Crater
-    171: 3,  # Lunar Module
+# Predefined Object Classes (Fixed Mappings)
+predefined_classes = {
+    range(57, 62): "rock",   # Rock
+    range(136, 141): "crater",  # Crater
+    range(169, 173): "lunar_module",  # Lunar Module
 }
 
-# Pixels to ignore
-ignore_pixels = {0, 33, 42}  # Background, pink area, and non-object
+# Ignored Pixels (Background, unwanted colors)
+ignore_pixels = {0, 33, 42}  # Background, pink, red (not objects)
+
+# Dynamically assigned new class mappings
+dynamic_class_mapping = {}  
+next_dynamic_class_id = 4  # Start from 4 for newly detected colors
 
 # Helper function to extract the prefix from file name
 def extract_prefix(filename):
     return ''.join([c for c in filename if c.isdigit()])
+
+# Function to get class ID based on pixel value
+def get_class_id(pixel_value):
+    global next_dynamic_class_id
+
+    # Check predefined classes
+    for pixel_range, class_name in predefined_classes.items():
+        if pixel_value in pixel_range:
+            return class_name  # Return predefined class
+
+    # If pixel_value is not predefined, categorize it dynamically
+    if pixel_value not in dynamic_class_mapping:
+        # Assign a new class dynamically
+        dynamic_class_mapping[pixel_value] = f"class_{next_dynamic_class_id}"
+        next_dynamic_class_id += 1  # Increment for next unknown class
+
+    return dynamic_class_mapping[pixel_value]
 
 # Pair grayscale and semantic images by prefix
 grayscale_files = {extract_prefix(f): f for f in os.listdir(grayscale_dir) if f.endswith('grayscale.png')}
 semantic_files = {extract_prefix(f): f for f in os.listdir(semantic_dir) if f.endswith('semantic.png')}
 
 # Generate annotations
-unique_classes = set()
+unique_classes = set(predefined_classes.values())  # Start with predefined classes
 for prefix, grayscale_file in grayscale_files.items():
     if prefix not in semantic_files:
         print(f"[WARNING] No matching semantic mask for {grayscale_file}")
@@ -62,32 +83,30 @@ for prefix, grayscale_file in grayscale_files.items():
             # Extract the unique values from the mask region
             mask_values = np.unique(semantic_mask[minr:maxr, minc:maxc])
 
-            # Remove ignored pixels (background, pink, non-object)
+            # Remove ignored pixels (background, pink, red)
             mask_values = [val for val in mask_values if val not in ignore_pixels]
 
             # If no valid object is found, skip this region
-            if not mask_values:
+            if len(mask_values) == 0:
                 continue
 
             # Pick the most frequent object class in the bounding box
-            class_counts = np.bincount(mask_values)
-            most_frequent_value = mask_values[np.argmax(class_counts[:len(mask_values)])]
+            most_frequent_value = int(np.bincount(mask_values).argmax())
 
-            # Ensure the class ID is correctly mapped
-            class_id = mask_class_mapping.get(most_frequent_value, 4)  # Default to "unknown_object"
+            # Get class name using flexible range matching or dynamic assignment
+            class_name = get_class_id(most_frequent_value)
+            unique_classes.add(class_name)
 
-            unique_classes.add(class_id)
+            # Ensure small objects are detected by lowering threshold
+            if (0.005 <= bbox_width <= 0.8 and 0.005 <= bbox_height <= 0.8 and
+                0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):
+                f.write(f"{class_name} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
-            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
-            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
-                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
-                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
-
-# Class Names
-class_names = ["rock", "crater", "lunar_module", "unknown_object"]
+# Create final class list with both predefined and dynamically assigned classes
+final_class_list = list(predefined_classes.values()) + list(dynamic_class_mapping.values())
 
 # Update dataset.yaml with correct class count and names
-nc = len(class_names)
+nc = len(final_class_list)
 dataset_yaml_content = f"""# Dataset path
 path: C:/Users/Dell/Desktop/NASA_LAC/dataset
 
@@ -99,10 +118,10 @@ val: images/val
 nc: {nc}
 
 # Class names
-names: {class_names}
+names: {final_class_list}
 """
 
 with open(dataset_yaml_path, "w") as f:
     f.write(dataset_yaml_content)
 
-print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {class_names}")
+print(f"Annotation generation complete! dataset.yaml updated with {nc} classes: {final_class_list}")
