@@ -1,13 +1,24 @@
 import os
 import random
+import shutil
 import cv2
 from ultralytics import YOLO
 
 # Load the trained YOLO model
-model = YOLO('runs/detect/train2/weights/best.pt')
+model = YOLO('runs/detect/train/weights/best.pt')
 
 # Define the validation images folder
 val_images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/images/val'
+output_folder = 'C:/Users/Dell/Desktop/NASA_LAC/runs/detect'  # Save directly to detect/
+predict_folder = os.path.join(output_folder, 'predict')
+
+# Ensure the validation images folder exists
+if not os.path.exists(val_images_dir):
+    raise FileNotFoundError("ERROR: Validation images folder not found!")
+
+# Remove old prediction results before running new ones
+if os.path.exists(predict_folder):
+    shutil.rmtree(predict_folder)  # Delete previous predictions
 
 # Get a list of all image files in the folder
 image_files = [f for f in os.listdir(val_images_dir) if f.endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff', '.webp'))]
@@ -30,11 +41,7 @@ for image_file in selected_images:
     # Read the image using OpenCV
     image = cv2.imread(image_path)
 
-    # Run YOLO model on the image
-    results = model.predict(image, save=True, project="runs/detect", name="predict")
+    # Run YOLO model on the image and save results
+    results = model.predict(image, save=True, project=output_folder, name="predict", exist_ok=True)
 
-    # Display results
-    for result in results:
-        result.show()  # Show the detection result
-
-print("Predictions complete! Results saved in 'runs/detect/predict'.")
+print(f"Predictions complete! Results saved in '{predict_folder}'.")
