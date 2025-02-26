@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 # Load the image
-image_path = "C:/Users/Dell/Desktop/NASA_LAC/training_images/semantic/15606semantic.png"
+image_path = "C:/Users/Dell/Desktop/NASA_LAC/all_images/semantic/15606semantic.png"
 semantic_img = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
 
 # Resize for better visibility
