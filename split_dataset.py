@@ -3,7 +3,7 @@ import shutil
 import random
 
 # Full paths to directories
-images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
+images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/all_images/grayscale'
 labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 train_images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/images/train'
 val_images_dir = 'C:/Users/Dell/Desktop/NASA_LAC/dataset/images/val'
