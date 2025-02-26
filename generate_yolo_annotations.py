@@ -4,8 +4,8 @@ import numpy as np
 from skimage.measure import label, regionprops
 
 # Define full paths to directories
-grayscale_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/grayscale'
-semantic_dir = 'C:/Users/Dell/Desktop/NASA_LAC/training_images/semantic'
+grayscale_dir = 'C:/Users/Dell/Desktop/NASA_LAC/all_images/grayscale'
+semantic_dir = 'C:/Users/Dell/Desktop/NASA_LAC/all_images/semantic'
 labels_dir = 'C:/Users/Dell/Desktop/NASA_LAC/output_labels'
 dataset_yaml_path = 'C:/Users/Dell/Desktop/NASA_LAC/dataset.yaml'
 os.makedirs(labels_dir, exist_ok=True)
