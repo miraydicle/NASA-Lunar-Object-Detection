@@ -33,13 +33,14 @@ def get_class_id(pixel_value):
     global next_dynamic_class_id
 
     # Check predefined classes
-    for pixel_range, class_name in predefined_classes.items():
+    for pixel_range, class_id in predefined_classes.items():
         if pixel_value in pixel_range:
-            return class_name  # Return predefined class
+            return class_id  # Return predefined class
 
     # If pixel_value is not predefined, categorize it dynamically
     if pixel_value not in dynamic_class_mapping:
-        dynamic_class_mapping[pixel_value] = f"class_{next_dynamic_class_id}"
+        # Assign a new class dynamically
+        dynamic_class_mapping[pixel_value] = next_dynamic_class_id
         next_dynamic_class_id += 1  # Increment for next unknown class
 
     return dynamic_class_mapping[pixel_value]
@@ -90,19 +91,22 @@ for prefix, grayscale_file in grayscale_files.items():
                 continue
 
             # Pick the most frequent object class in the bounding box
-            most_frequent_value = int(np.bincount(mask_values).argmax())
+            if len(mask_values) > 0:
+                most_frequent_value = int(np.bincount(mask_values).argmax())
+            else:
+                continue  # Skip if no valid mask values
 
             # Get class name using flexible range matching or dynamic assignment
-            class_name = get_class_id(most_frequent_value)
-            unique_classes.add(class_name)
+            class_id = get_class_id(most_frequent_value)
+            unique_classes.add(class_id)
 
             # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
-            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
-                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
-                f.write(f"{class_name} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
+            if (0.005 <= bbox_width <= 0.8 and 0.005 <= bbox_height <= 0.8 and
+                0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):
+                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Create final class list with both predefined and dynamically assigned classes
-final_class_list = list(predefined_classes.values()) + list(dynamic_class_mapping.values())
+final_class_list = ["rock", "crater", "lander"] + [f"class_{i}" for i in range(4, next_dynamic_class_id)]
 
 # Update dataset.yaml with correct class count and names
 nc = len(final_class_list)
