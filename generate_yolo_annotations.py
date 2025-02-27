@@ -97,7 +97,7 @@ for prefix, grayscale_file in grayscale_files.items():
             unique_classes.add(class_name)
 
             # Ensure small objects are detected by lowering threshold
-            if (0.002 <= bbox_width <= 0.8 and 0.002 <= bbox_height <= 0.8 and
+            if (0.005 <= bbox_width <= 0.8 and 0.005 <= bbox_height <= 0.8 and
                 0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):
                 f.write(f"{class_name} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
