@@ -23,10 +23,10 @@ model.train(
     save_period=10,         # Save model every 10 epochs
     patience=20,            # Stop early if no improvement
     augment=True,           # Advanced YOLO augmentation enabled
-    mosaic=1.0,             # Maximize Mosaic Augmentation
-    mixup=0.3,              # Increase Mixup to generalize small objects
+    mosaic=0.8,             # Increase Mosaic Augmentation
+    mixup=0.2,              # Helps model generalize small objects
     hsv_v=0.6,              # Slightly increase brightness to enhance contrast
-    conf=0.3,               # Reduce confidence threshold for small object detection
+    conf=0.4,               # Confidence threshold tuning
     iou=0.6,                # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
     auto_anchor=True        # Automatically optimize anchor sizes for small objects
 )
