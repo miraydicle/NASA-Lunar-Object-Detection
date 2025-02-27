@@ -27,7 +27,7 @@ model.train(
     mixup=0.2,              # Helps model generalize small objects
     hsv_v=0.6,              # Slightly increase brightness to enhance contrast
     conf=0.4,               # Confidence threshold tuning
-    iou=0.6,                 # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
+    iou=0.6,                # Enable Non-Maximum Suppression (NMS) to remove overlapping boxes
     auto_anchor=True        # Automatically optimize anchor sizes for small objects
 )
 
