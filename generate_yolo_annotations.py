@@ -96,10 +96,10 @@ for prefix, grayscale_file in grayscale_files.items():
             class_name = get_class_id(most_frequent_value)
             unique_classes.add(class_name)
 
-            # Ensure small objects are detected by lowering threshold
-            if (0.005 <= bbox_width <= 0.8 and 0.005 <= bbox_height <= 0.8 and
-                0.01 <= x_center <= 0.99 and 0.01 <= y_center <= 0.99):
-                f.write(f"{class_name} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
+            # Ensure valid bounding boxes (filter tiny boxes, edge cases, and large boxes)
+            if (0.02 <= bbox_width <= 0.8 and 0.02 <= bbox_height <= 0.8 and
+                0.02 <= x_center <= 0.98 and 0.02 <= y_center <= 0.98):
+                f.write(f"{class_id} {x_center:.6f} {y_center:.6f} {bbox_width:.6f} {bbox_height:.6f}\n")
 
 # Create final class list with both predefined and dynamically assigned classes
 final_class_list = list(predefined_classes.values()) + list(dynamic_class_mapping.values())
