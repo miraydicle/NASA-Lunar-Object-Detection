@@ -66,15 +66,15 @@ A summary of loss values, accuracy, and overall model performance.
   - **Momentum:** 0.937 for training stability.
   - **Weight Decay:** 0.0005 for regularization and preventing overfitting.
 - **Augmentations:**
-  - **Mosaic:** 1.0 for enhanced image variety.
-  - **Mixup:** 0.3 to improve generalization.
+  - **Mosaic:** 0.8 for enhanced image variety.
+  - **Mixup:** 0.2 to improve generalization.
   - **HSV_V:** 0.6 to enhance contrast and brightness.
 - **Validation & Early Stopping:**
   - **Validation:** Enabled to track model progress.
   - **Save Period:** Every 10 epochs.
   - **Patience:** 20 epochs for early stopping if no improvement.
 - **Object Detection Enhancements:**
-  - **Confidence Threshold:** 0.3 for small object detection.
+  - **Confidence Threshold:** 0.4 for small object detection.
   - **IoU Threshold:** 0.6 for improved Non-Maximum Suppression (NMS).
   - **Auto Anchor:** Enabled for optimized anchor sizes.
 
